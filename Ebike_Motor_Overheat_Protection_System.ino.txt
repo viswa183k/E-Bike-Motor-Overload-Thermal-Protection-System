@@ -1,0 +1,48 @@
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+
+int tempSensor = A0;
+int currentSensor = A1;
+int motorPWM = 9;
+
+float maxTemp = 75.0;
+float maxCurrent = 18.0;
+
+void setup() {
+  lcd.begin(16, 2);
+  pinMode(motorPWM, OUTPUT);
+  lcd.print("E-Bike Motor");
+  delay(1200);
+  lcd.clear();
+}
+
+void loop() {
+  int tempValue = analogRead(tempSensor);
+  float temperature = (tempValue * 5.0 * 100) / 1023.0;
+
+  int currentValue = analogRead(currentSensor);
+  float current = (currentValue / 1023.0) * 20.0;
+
+  lcd.setCursor(0, 0);
+  lcd.print("T:");
+  lcd.print(temperature, 1);
+  lcd.print("C");
+
+  lcd.setCursor(0, 1);
+  lcd.print("I:");
+  lcd.print(current, 1);
+  lcd.print("A ");
+
+  if (temperature > maxTemp || current > maxCurrent) {
+    analogWrite(motorPWM, 90); // Reduce power
+    lcd.setCursor(8, 1);
+    lcd.print("SAFE");
+  } else {
+    analogWrite(motorPWM, 200); // Normal power
+    lcd.setCursor(8, 1);
+    lcd.print("OK  ");
+  }
+
+  delay(300);
+}
